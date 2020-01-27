@@ -5,6 +5,7 @@
  *  01/26/2020
  *  NATIONAL UNIVERSITY CURRICULUM
  *
+ * Vertex - single node
  */
 
 import React from 'react';
