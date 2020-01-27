@@ -1,19 +1,31 @@
+/*
+ *  CHRISTOPHER APODACA
+ *  CSC338 - ALGORITHMS
+ *  Dijkstra'S ALGORITHM IMPLEMENTATION
+ *  01/26/2020
+ *  NATIONAL UNIVERSITY CURRICULUM
+ *
+ * Grid - graph of Vertices
+ */
+
 import React from 'react';
-import Square from './Vertex';
+import Vertex from './Vertex';
+
+const INFINITY = 999999;
 
 class Grid extends React.Component{
 
-  constructor(){
-    super();
+  constructor( ){
+    super( );
     
     //
     // Container width = 800px
-    // Therefore: 
     // Number of elements, multiple of 80
     // row_n = 20
     // column_n = 32
     // n=500
     // 
+
     let data = {
       n: 640,
       row_n: 20,
@@ -33,45 +45,94 @@ class Grid extends React.Component{
     };
   }
 
-  createGrid(){
-    this.reset();
+  createGrid( ){
+    this.initGrid();
     return this.state.grid;
   }
 
-  reset(){
-    this.state.grid = [];
+  //Initialize the grid elements
+  initGrid(){
+  
+    let vertex;
+    let vertex_data;
 
     // Outer loop to create parent
+    //mod gives you column
+    //division gives you row
+    //calculations are not 0 index
     for ( let i = 0; i < this.state.grid_data.n; i++ ) {
-      //mod gives you column
-      //division gives you row
-      //calculations are not 0 index
-      if( this.state.begin_i === i ){
-        this.state.grid.push( 
-             <Square name={ "begin-pos pos pos-"+ this.state.begin_i  + " " + i } key={i} /> 
-           );
-      }else if( this.state.target_i === i ){
-        this.state.grid.push( 
-             <Square name="target-pos" key={i} /> 
-           );
+
+      vertex_data = { };
+
+      if( this.state.begin_i === i ){ // IF AT BEGIN
+        vertex_data.visited = true;
+        vertex_data.name    = "begin-pos pos pos-" + this.state.begin_i  + " ";
+      }else if( this.state.target_i === i ){ // IF AT TARGET
+        vertex_data.visted = false;
+        vertex_data.name   = "target-pos";
       }
       else{
-        this.state.grid.push( 
-          <Square name="no" key={i} /> 
-        );
+        vertex_data.visted = false;
+        vertex_data.name   = "";
       }
+
+      vertex = <Vertex 
+                visited={vertex_data.visited} 
+                name={vertex_data.name}
+                key={i}
+                index={i}
+               /> 
+      this.state.grid.push( vertex );
+    }
+
+  }
+
+  // Reset Grid Elements
+  // Initialize Grid Elements
+  reset( ){
+    this.setState({grid:[]});
+    this.initGrid();
+  }
+
+  //
+  // DIJKSTRAS PATHFINDING ALGORITHM
+  // EVERY VERTEX IS CONNECTED IT IT'S NEIGHBOR
+  // EVERY EDGE HAS WEIGHT 1
+  //
+  // SET BEGIN = 0;
+  // SET ALL VERTICES TO INFINITY
+  //
+  // CHECK ALL RELEVANT NEIGHBORS 
+  // add the minimum distance of the current node
+  // with the weight of the edge = 1
+  // compare that value with the minimum distance of B ( infinity )
+  // the lowest value is the one that remains as the minimum distance of B.
+  // ONCE ALL NEIGHBORS ARE CHECKED, MARK THE VERTEX AS VISITED
+  // PICK NEW "current" node an Unvisited with lowest distance
+  //  REPEAT ALGORITHM
+  //
+
+  dijkstra_pathfinding( ){
+    
+    let dist = new Array( this.state.grid_data.n ).fill( INFINITY );
+    dist[ this.state.begin_i ] = 0;
+
+    let visited = [];
+    let Q = [ ...this.state.grid ];
+
+    console.log("pathfinding");
+    console.log(Q);
+
+    for( let i = 0; i < Q.length; i++ ){
+      console.log( Q.pop( ) );
     }
   }
 
-  dijkstra_pathfinding( path, source ){
-    
+  begin( ){
+    this.dijkstra_pathfinding( );
   }
 
-  begin(){
-    this.dijkstra_pathfinding();
-  }
-
-  render(){
+  render( ){
     return(
       <div id="grid" className="pt-5 grid-wrap">
         <div className="p-0">
@@ -80,8 +141,8 @@ class Grid extends React.Component{
               <button
                text="reset" 
                value="reset" 
-               className="btn btn-primary p-1"
-               onClick={ () => this.reset() } >
+               className="btn btn-secondary p-1"
+               onClick={ ( ) => this.reset( ) } >
                  RESET
                </button>
             </div>
@@ -89,14 +150,14 @@ class Grid extends React.Component{
               <button
                text="begin" 
                value="begin" 
-               className="btn btn-secondary p-1"
-               onClick={ () => this.begin() } >
+               className="btn btn-primary p-1"
+               onClick={ ( ) => this.begin( ) } >
                  BEGIN
                </button>
             </div>
           </div> 
           {
-            this.createGrid()
+            this.createGrid( )
           }
         </div>
       </div>

@@ -1,3 +1,13 @@
+/*
+ *  CHRISTOPHER APODACA
+ *  CSC338 - ALGORITHMS
+ *  Dijkstra'S ALGORITHM IMPLEMENTATION
+ *  01/26/2020
+ *  NATIONAL UNIVERSITY CURRICULUM
+ *
+ * Index 
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
