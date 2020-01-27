@@ -1,0 +1,39 @@
+@import './bootstrap/scss/bootstrap';
+
+$square-size:25px;
+
+body{
+  line-height:0;
+}
+
+p,li,a{
+  line-height:0;
+}
+
+.App {
+  text-align: center;
+}
+
+#grid{
+  width:800px;
+  margin: 0 auto;
+}
+
+#menu{
+ 
+}
+
+.vertex{
+  display:inline-block;
+  width:$square-size;
+  height:$square-size;
+  background-color:pink;
+  border:1px solid black;
+}
+
+.begin-pos{ 
+  background-color: blue;
+}
+.target-pos{
+  background-color: red;
+}
