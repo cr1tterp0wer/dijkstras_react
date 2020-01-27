@@ -154,7 +154,7 @@ class Grid extends React.Component{
       console.log( Q.pop( ) );
       
       //IF WE CAN GO TO VERTEX, DO IT
-      if(){}
+//      if(){}
 
     }
   }
