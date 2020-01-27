@@ -55,6 +55,8 @@ class Grid extends React.Component{
   
     let vertex;
     let vertex_data;
+    let col_len = this.state.grid_data.column_n;
+    let row_len = this.state.grid_data.row_n;
 
     // Outer loop to create parent
     //mod gives you column
@@ -71,16 +73,41 @@ class Grid extends React.Component{
         vertex_data.visted = false;
         vertex_data.name   = "target-pos";
       }
-      else{
+      else{ //IF VANILLA VERTEX
         vertex_data.visted = false;
         vertex_data.name   = "";
       }
+
+      //ADD WEIGHTS
+      if( i % col_len == 0 ) //LEFT
+        vertex_data.left = -1;
+      else
+        vertex_data.left = 1;
+
+      if( ( i % col_len ) == ( col_len - 1 ) ) //RIGHT
+        vertex_data.right = -1;
+      else
+        vertex_data.right = 1;
+
+      if( Math.floor( i / col_len ) == ( 0 ) ) //UPPER
+        vertex_data.top = -1;
+      else
+        vertex_data.top = 1;
+
+      if( Math.floor( i / col_len ) >= ( row_len-1 ) ) //LOWER
+        vertex_data.bottom = -1;
+      else
+        vertex_data.bottom = 1;
 
       vertex = <Vertex 
                 visited={vertex_data.visited} 
                 name={vertex_data.name}
                 key={i}
                 index={i}
+                left={vertex_data.left} 
+                right={vertex_data.right}
+                top={vertex_data.top}
+                bottom={vertex_data.bottom}
                /> 
       this.state.grid.push( vertex );
     }
@@ -125,6 +152,10 @@ class Grid extends React.Component{
 
     for( let i = 0; i < Q.length; i++ ){
       console.log( Q.pop( ) );
+      
+      //IF WE CAN GO TO VERTEX, DO IT
+      if(){}
+
     }
   }
 
