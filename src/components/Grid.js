@@ -15,17 +15,16 @@ const INFINITY = 999999;
 
 class Grid extends React.Component{
 
+  //
+  // Container width = 800px
+  // Number of elements, multiple of 80
+  // row_n = 20
+  // column_n = 32
+  // n=500
+  // 
   constructor( ){
     super( );
     
-    //
-    // Container width = 800px
-    // Number of elements, multiple of 80
-    // row_n = 20
-    // column_n = 32
-    // n=500
-    // 
-
     let data = {
       n: 640,
       row_n: 20,
@@ -43,6 +42,11 @@ class Grid extends React.Component{
       begin_pos: [ 19, 0 ], //row,col
       target_pos: [ 0, 31 ],
     };
+
+  }
+
+  componentDidMount(){
+    this.initGrid();
   }
 
   createGrid( ){
@@ -54,6 +58,7 @@ class Grid extends React.Component{
   initGrid(){
   
     let vertex;
+    let vertices=[];
     let vertex_data;
     let col_len = this.state.grid_data.column_n;
     let row_len = this.state.grid_data.row_n;
@@ -67,15 +72,18 @@ class Grid extends React.Component{
       vertex_data = { };
 
       if( this.state.begin_i === i ){ // IF AT BEGIN
-        vertex_data.visited = true;
-        vertex_data.name    = "begin-pos pos pos-" + this.state.begin_i  + " ";
+        vertex_data.visited   = true;
+        vertex_data.name      = "begin-pos pos pos-" + this.state.begin_i  + " ";
+        vertex_data.distance  = 0;
       }else if( this.state.target_i === i ){ // IF AT TARGET
         vertex_data.visted = false;
         vertex_data.name   = "target-pos";
+        vertex_data.distance  = INFINITY;
       }
       else{ //IF VANILLA VERTEX
         vertex_data.visted = false;
         vertex_data.name   = "";
+        vertex_data.distance  = INFINITY;
       }
 
       //ADD WEIGHTS
@@ -100,6 +108,8 @@ class Grid extends React.Component{
         vertex_data.bottom = 1;
 
       vertex = <Vertex 
+                visited_via=""
+                distance={vertex_data.distance}
                 visited={vertex_data.visited} 
                 name={vertex_data.name}
                 key={i}
@@ -109,18 +119,15 @@ class Grid extends React.Component{
                 top={vertex_data.top}
                 bottom={vertex_data.bottom}
                /> 
-      this.state.grid.push( vertex );
+        vertices.push( vertex );
     }
 
+    this.setState( (state,props) => {
+      return { grid: [...vertices] }
+    });
   }
 
-  // Reset Grid Elements
-  // Initialize Grid Elements
-  reset( ){
-    this.setState({grid:[]});
-    this.initGrid();
-  }
-
+  
   //
   // DIJKSTRAS PATHFINDING ALGORITHM
   // EVERY VERTEX IS CONNECTED IT IT'S NEIGHBOR
@@ -129,38 +136,134 @@ class Grid extends React.Component{
   // SET BEGIN = 0;
   // SET ALL VERTICES TO INFINITY
   //
-  // CHECK ALL RELEVANT NEIGHBORS 
-  // add the minimum distance of the current node
-  // with the weight of the edge = 1
-  // compare that value with the minimum distance of B ( infinity )
-  // the lowest value is the one that remains as the minimum distance of B.
-  // ONCE ALL NEIGHBORS ARE CHECKED, MARK THE VERTEX AS VISITED
-  // PICK NEW "current" node an Unvisited with lowest distance
-  //  REPEAT ALGORITHM
   //
 
-  dijkstra_pathfinding( ){
+  dijkstra_pathfinding( s, t ){
     
-    let dist = new Array( this.state.grid_data.n ).fill( INFINITY );
-    dist[ this.state.begin_i ] = 0;
-
     let visited = [];
-    let Q = [ ...this.state.grid ];
+    let source  = this.state.grid[s];
+    let target  = this.state.grid[t];
 
-    console.log("pathfinding");
-    console.log(Q);
+    let priority_queue = [source];
+    let current_vertex;
+    let vertex_data;
+    let i;
+    let tmp_grid;
 
-    for( let i = 0; i < Q.length; i++ ){
-      console.log( Q.pop( ) );
-      
-      //IF WE CAN GO TO VERTEX, DO IT
-//      if(){}
+    console.log( this.state.grid );
+    while( priority_queue.length > 0 ){
 
+      current_vertex = priority_queue.shift();
+      vertex_data    = current_vertex.props;
+      tmp_grid       = [...this.state.grid];
+
+      i = vertex_data.index;
+
+      let v;//tmp vertex to update React state
+
+      if( vertex_data.left > 0 ){
+        if( vertex_data.distance + vertex_data.left < this.state.grid[ i - 1 ].props.distance ){
+          v = <Vertex 
+                visited_via={i}
+                distance={vertex_data.distance + vertex_data.right}
+                visited={tmp_grid[i-1].visited} 
+                name={tmp_grid[i -1].name}
+                key={tmp_grid[i-1].key}
+                index={tmp_grid[i-1].index}
+                left={tmp_grid[i-1].left} 
+                right={tmp_grid[i-1].right}
+                top={tmp_grid[i-1].top}
+                bottom={tmp_grid[i-1].bottom}
+               /> 
+          tmp_grid[ i - 1 ] = v;
+        }
+      }
+      if( vertex_data.right > 0 ) {
+        if( vertex_data.distance + vertex_data.right < this.state.grid[ i + 1 ].props.distance ){
+          v = <Vertex 
+                visited_via={i}
+                distance={vertex_data.distance + vertex_data.right}
+                visited={tmp_grid[ i + 1 ].visited} 
+                name={tmp_grid[ i + 1].name}
+                key={tmp_grid[i+1].key}
+                index={tmp_grid[i+1].index}
+                left={tmp_grid[i+1].left} 
+                right={tmp_grid[i+1].right}
+                top={tmp_grid[i+1].top}
+                bottom={tmp_grid[i+1].bottom}
+               /> 
+          tmp_grid[ i + 1 ] = v;
+        }
+      }
+      if( vertex_data.top > 0 ){
+        if( vertex_data.distance + vertex_data.top < this.state.grid[ i - this.state.grid_data.column_n ].props.distance ){
+          v = <Vertex 
+                visited_via={i}
+                distance={vertex_data.distance + vertex_data.right}
+                visited={tmp_grid[i-this.state.grid_data.column_n].visited} 
+                name={tmp_grid[i-this.state.grid_data.column_n].name}
+                key={tmp_grid[i-this.state.grid_data.column_n].key}
+                index={tmp_grid[i-this.state.grid_data.column_n].index}
+                left={tmp_grid[i-this.state.grid_data.column_n].left} 
+                right={tmp_grid[i-this.state.grid_data.column_n].right}
+                top={tmp_grid[i-this.state.grid_data.column_n].top}
+                bottom={tmp_grid[i-this.state.grid_data.column_n].bottom}
+               /> 
+          tmp_grid[i-this.state.grid_data.column_n] = v;
+        }
+      }
+      if( vertex_data.bottom > 0 ){
+        if( vertex_data.distance + vertex_data.bottom < this.state.grid[ i + this.state.grid_data.column_n ].props.distance ){
+          v = <Vertex 
+                visited_via={i}
+                distance={vertex_data.distance + vertex_data.right}
+                visited={tmp_grid[i+this.state.grid_data.column_n].visited} 
+                name={tmp_grid[i+this.state.grid_data.column_n].name}
+                key={tmp_grid[i+this.state.grid_data.column_n].key}
+                index={tmp_grid[i+this.state.grid_data.column_n].index}
+                left={tmp_grid[i+this.state.grid_data.column_n].left} 
+                right={tmp_grid[i+this.state.grid_data.column_n].right}
+                top={tmp_grid[i+this.state.grid_data.column_n].top}
+                bottom={tmp_grid[i+this.state.grid_data.column_n].bottom}
+               /> 
+          tmp_grid[i+this.state.grid_data.column_n] = v;
+        }
+      }
+
+      this.setState({
+        grid: [ ...tmp_grid ]
+      });
     }
+
+  }
+
+  //
+  // Utility Functions
+  //
+
+  removeAt( i ){
+    var tmpGrid = this.state.grid;
+
+    tmpGrid[i] = null;
+    this.setState( ( state, props) => {
+      return { grid: [...tmpGrid] }
+    });
   }
 
   begin( ){
-    this.dijkstra_pathfinding( );
+    this.dijkstra_pathfinding( this.state.begin_i, 
+                               this.state.target_i );
+  }
+
+  // Reset Grid Elements
+  reset( ){
+    this.setState({grid:[]});
+    this.initGrid();
+  }
+
+  //Clear Grid Elements
+  clear( ){
+    this.setState({grid:[]});
   }
 
   render( ){
@@ -188,7 +291,9 @@ class Grid extends React.Component{
             </div>
           </div> 
           {
-            this.createGrid( )
+           this.state.grid.length > 0 ? this.state.grid.map( vertex => {
+              return vertex;
+            }) : null 
           }
         </div>
       </div>
