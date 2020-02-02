@@ -66,10 +66,10 @@ class Grid extends React.Component{
 
       vertex_data = { };
 
-      if( this.state.begin_i === i ){ // IF AT BEGIN
+      if( this.state.begin_i ==== i ){ // IF AT BEGIN
         vertex_data.visited = true;
         vertex_data.name    = "begin-pos pos pos-" + this.state.begin_i  + " ";
-      }else if( this.state.target_i === i ){ // IF AT TARGET
+      }else if( this.state.target_i ==== i ){ // IF AT TARGET
         vertex_data.visted = false;
         vertex_data.name   = "target-pos";
       }
@@ -79,17 +79,17 @@ class Grid extends React.Component{
       }
 
       //ADD WEIGHTS
-      if( i % col_len == 0 ) //LEFT
+      if( i % col_len === 0 ) //LEFT
         vertex_data.left = -1;
       else
         vertex_data.left = 1;
 
-      if( ( i % col_len ) == ( col_len - 1 ) ) //RIGHT
+      if( ( i % col_len ) === ( col_len - 1 ) ) //RIGHT
         vertex_data.right = -1;
       else
         vertex_data.right = 1;
 
-      if( Math.floor( i / col_len ) == ( 0 ) ) //UPPER
+      if( Math.floor( i / col_len ) === ( 0 ) ) //UPPER
         vertex_data.top = -1;
       else
         vertex_data.top = 1;
