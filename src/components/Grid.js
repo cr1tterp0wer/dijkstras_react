@@ -66,10 +66,10 @@ class Grid extends React.Component{
 
       vertex_data = { };
 
-      if( this.state.begin_i ==== i ){ // IF AT BEGIN
+      if( this.state.begin_i === i ){ // IF AT BEGIN
         vertex_data.visited = true;
         vertex_data.name    = "begin-pos pos pos-" + this.state.begin_i  + " ";
-      }else if( this.state.target_i ==== i ){ // IF AT TARGET
+      }else if( this.state.target_i === i ){ // IF AT TARGET
         vertex_data.visted = false;
         vertex_data.name   = "target-pos";
       }
