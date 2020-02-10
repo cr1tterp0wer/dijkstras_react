@@ -268,24 +268,11 @@ class Grid extends React.Component{
     this.initGrid();
   }
 
-  //Clear Grid Elements
-  clear( ){
-  }
-
   render( ){
     return(
-      <div id="grid" className="pt-5 grid-wrap">
+      <div id="grid" className="grid-wrap">
         <div className="p-0">
           <div id="menu" className="row p-4 justify-content-md-center">
-            <div className="reset-btn col-md-ofset-2 col-md-2">
-              <button
-               text="reset" 
-               value="reset" 
-               className="btn btn-secondary p-1"
-               onClick={ ( ) => this.reset( ) } >
-                 RESET
-               </button>
-            </div>
             <div className="begin-btn col-md-2">
               <button
                text="begin" 

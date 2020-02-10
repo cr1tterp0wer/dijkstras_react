@@ -1,14 +1,29 @@
+@import './bootstrap/scss/bootstrap-reboot';
+@import './bootstrap/scss/bootstrap-grid';
 @import './bootstrap/scss/bootstrap';
 
 $square-size:25px;
 
 body{
   line-height:0;
-  background:gray;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
-p,li,a{
+p{
   line-height:0;
+}
+
+a,li{
+  line-height: 1;
+}
+
+h1,h2,h3,h4,h5,h6{
+  &.light{
+    font-weight:100;
+  }
+  &.med{
+    font-weight:300;
+  }
 }
 
 .App {
@@ -18,10 +33,8 @@ p,li,a{
 #grid{
   width:800px;
   margin: 0 auto;
-}
 
-#menu{
- 
+  padding:0 0 25px 0;
 }
 
 .vertex{
@@ -61,6 +74,14 @@ p,li,a{
   animation-fill-mode: forwards;
   animation-play-state: running;
 }
+
+.page-footer{
+  a{
+    color:white;
+    font-weight:500;
+  }
+}
+
 
 @keyframes visitedTarget{
   0% {
@@ -106,13 +127,5 @@ p,li,a{
     background-color: rgba(0, 190, 218, 0.75);
   }
 }
-
-
-
-@keyframes fadein{
-  from{opacity:0;}
-  to{opacity:1;}
-}
-
 
 
