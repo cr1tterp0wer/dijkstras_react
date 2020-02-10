@@ -18,8 +18,10 @@ class Footer extends React.Component{
       <div className="container-fluid text-center text-md-left">
         <div className="row">
           <div className="col-md-6 mt-md-0 mt-3">
-            <h5 className="text-uppercase">Footer Content</h5>
-            <p>Here you can use rows and columns to organize your footer content.</p>
+            <h5 className="text-uppercase">Dijkstra's Algorithm</h5>
+            <p className="lh-1">A basic implementation of a "Shortest path" algorithm. This algorithm is a greedy algorithm that executes
+            linearly and checks/updates each node and it's neighbors cost in order to find the shortest cost path to any
+            given destination.</p>
           </div>
 
           <hr className="clearfix w-100 d-md-none pb-3"/>
@@ -46,7 +48,7 @@ class Footer extends React.Component{
             <h5 className="text-uppercase">Additional Info</h5>
              <ul className="list-unstyled">
               <li>
-                <a href="https://www.christopher-apodaca.com/blog">My Blog</a>
+                <a href="https://www.christopher-apodaca.com/posts">My Blog</a>
               </li>
               <li>
                 <a href="https://critter-physicsapp.herokuapp.com/">Physics Calculator</a>
@@ -59,8 +61,8 @@ class Footer extends React.Component{
 
         </div>
       </div>
-      <div className="footer-copyright text-center py-3">© 2020 Copyright:
-        <a href="https://www.christopher-apodaca.com/">Christopher-Apodaca.com</a>
+      <div className="footer-copyright text-center py-3">© 2020 Copyright 
+        <a href="https://www.christopher-apodaca.com/"> Christopher-Apodaca.com</a>
       </div>
 
     </footer>
