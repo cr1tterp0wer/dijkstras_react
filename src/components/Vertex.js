@@ -21,6 +21,7 @@ class Vertex extends React.Component{
   render(){
     return(
       <div 
+       id={this.props.id}
        className=
       {'vertex ' + this.props.name} 
       >

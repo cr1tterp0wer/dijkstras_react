@@ -13,6 +13,27 @@ import Vertex from './Vertex';
 
 const INFINITY = 999999;
 
+let data = {
+  n: 640,
+  row_n: 20,
+  column_n: 32,
+  begin_pos: [19, 0],
+  target_pos: [0,31],
+};
+
+let grid = {
+  vertex_data:[],
+  n: data.n,
+  row_n: data.row_n,
+  column_n: data.column_n,
+  begin_pos: data.begin_pos,
+  target_pos: data.target_pos,
+
+  begin_i: ( data.begin_pos[0] * data.column_n ) + ( data.begin_pos[1] % data.column_n  ),
+  target_i: ( data.target_pos[0] * data.column_n ) + ( data.target_pos[1] % data.column_n  ),
+}
+
+
 class Grid extends React.Component{
 
   //
@@ -24,25 +45,9 @@ class Grid extends React.Component{
   // 
   constructor( ){
     super( );
-    
-    let data = {
-      n: 640,
-      row_n: 20,
-      column_n: 32,
-
-      begin_pos: [19, 0],
-      target_pos: [0,31],
-    };
-    
     this.state = {
-      grid_data: data,
-      grid: [],
-      begin_i: ( data.begin_pos[0] * data.column_n ) + ( data.begin_pos[1] % data.column_n  ),
-      target_i: ( data.target_pos[0] * data.column_n ) + ( data.target_pos[1] % data.column_n  ),
-      begin_pos: [ 19, 0 ], //row,col
-      target_pos: [ 0, 31 ],
-    };
-
+       vertices: []
+    }
   }
 
   componentDidMount(){
@@ -51,39 +56,39 @@ class Grid extends React.Component{
 
   createGrid( ){
     this.initGrid();
-    return this.state.grid;
+    return this.state.vertices;
   }
 
   //Initialize the grid elements
   initGrid(){
   
     let vertex;
-    let vertices=[];
+    let vertices = [];
     let vertex_data;
-    let col_len = this.state.grid_data.column_n;
-    let row_len = this.state.grid_data.row_n;
+    let col_len = grid.column_n;
+    let row_len = grid.row_n;
 
     // Outer loop to create parent
-    //mod gives you column
-    //division gives you row
-    //calculations are not 0 index
-    for ( let i = 0; i < this.state.grid_data.n; i++ ) {
+    // mod gives you column
+    // division gives you row
+    // calculations are not 0 index
+    for ( let i = 0; i < grid.n; i++ ) {
 
       vertex_data = { };
 
-      if( this.state.begin_i === i ){ // IF AT BEGIN
-        vertex_data.visited   = true;
-        vertex_data.name      = "begin-pos pos pos-" + this.state.begin_i  + " ";
+      if( grid.begin_i === i ){ // IF AT BEGIN
+        vertex_data.name      = "vertex begin-pos pos pos-" + grid.begin_i  + " item-" + i;
+        vertex_data.id        = "vertex-" + i;
         vertex_data.distance  = 0;
-      }else if( this.state.target_i === i ){ // IF AT TARGET
-        vertex_data.visted = false;
-        vertex_data.name   = "target-pos";
+      }else if( grid.target_i === i ){ // IF AT TARGET
+        vertex_data.name      = "vertex target-pos item-" + i;
         vertex_data.distance  = INFINITY;
+        vertex_data.id        = "vertex-" + i;
       }
       else{ //IF VANILLA VERTEX
-        vertex_data.visted = false;
-        vertex_data.name   = "";
+        vertex_data.name      = "vertex item-" + i ;
         vertex_data.distance  = INFINITY;
+        vertex_data.id        = "vertex-" + i;
       }
 
       //ADD WEIGHTS
@@ -108,25 +113,30 @@ class Grid extends React.Component{
         vertex_data.bottom = 1;
 
       vertex = <Vertex 
-                visited_via=""
-                distance={vertex_data.distance}
-                visited={vertex_data.visited} 
                 name={vertex_data.name}
                 key={i}
                 index={i}
-                left={vertex_data.left} 
-                right={vertex_data.right}
-                top={vertex_data.top}
-                bottom={vertex_data.bottom}
+                id={vertex_data.id}
                /> 
-        vertices.push( vertex );
+
+      vertices.push( vertex );
+
+      grid.vertex_data.push({
+        index: i,
+        visited_via: "",
+        cost:   vertex_data.distance,
+        left:   vertex_data.left,
+        right:  vertex_data.right,
+        top:    vertex_data.top,
+        bottom: vertex_data.bottom,
+      });
     }
 
+    //ADD TO STATE-STORE FOR RENDER()
     this.setState( (state,props) => {
-      return { grid: [...vertices] }
+      return { vertices: [...vertices] }
     });
   }
-
   
   //
   // DIJKSTRAS PATHFINDING ALGORITHM
@@ -136,134 +146,130 @@ class Grid extends React.Component{
   // SET BEGIN = 0;
   // SET ALL VERTICES TO INFINITY
   //
+  // The Set of all VISITED vertices = EMPTY
+  // The PriorityQueue contains all vertices
+  // While the PriorityQueue is not empty()
+  // Get the item(u) in PriorityQueue with smallest distance
+  // Add (u) to the Set of VISITED vertices
   //
+  // Foreach( n in u.neighbors )
+  //   if( n.cost > u.cost + Edge( n, u )  ){
+  //     n.cost = u.cost + Edge( n, u ) )
+  //     n.visited_via = u.index
+  //    }
+  // 
+  // EDGE( n, u ) -> 1
 
-  dijkstra_pathfinding( s, t ){
+  dijkstra_pathfinding( target ){
     
     let visited = [];
-    let source  = this.state.grid[s];
-    let target  = this.state.grid[t];
+    let priority_queue;
 
-    let priority_queue = [source];
-    let current_vertex;
-    let vertex_data;
-    let i;
-    let tmp_grid;
+    //Get a sorted Deep Copy - Hacky, change later
+    priority_queue = JSON.parse( JSON.stringify( grid.vertex_data ) ).sort( (a,b) => ( a.cost <  b.cost ? -1 : 1 ) );
 
-    console.log( this.state.grid );
+    let neighbors = [];
+    let u; // current_vertex 
+
     while( priority_queue.length > 0 ){
+      u = priority_queue.shift();
+      visited.push( u );
+      neighbors = this.getNeighbors( u );
+      let self = this;
 
-      current_vertex = priority_queue.shift();
-      vertex_data    = current_vertex.props;
-      tmp_grid       = [...this.state.grid];
+      neighbors.forEach( function( e, i ){
+        let grid_neighbor = grid.vertex_data.find( ( item ) => ( item.index === e ) ); 
+        let pq_neighbor   = priority_queue.find(   ( item ) => item.index === grid_neighbor.index );
 
-      i = vertex_data.index;
+        if( grid_neighbor.cost > u.cost + 1 ){
+          grid_neighbor.cost        = u.cost + 1;
+          grid_neighbor.visited_via = u.index;
+          
+          pq_neighbor.cost        = u.cost + 1;
+          pq_neighbor.visited_via = u.index;
 
-      let v;//tmp vertex to update React state
-
-      if( vertex_data.left > 0 ){
-        if( vertex_data.distance + vertex_data.left < this.state.grid[ i - 1 ].props.distance ){
-          v = <Vertex 
-                visited_via={i}
-                distance={vertex_data.distance + vertex_data.right}
-                visited={tmp_grid[i-1].visited} 
-                name={tmp_grid[i -1].name}
-                key={tmp_grid[i-1].key}
-                index={tmp_grid[i-1].index}
-                left={tmp_grid[i-1].left} 
-                right={tmp_grid[i-1].right}
-                top={tmp_grid[i-1].top}
-                bottom={tmp_grid[i-1].bottom}
-               /> 
-          tmp_grid[ i - 1 ] = v;
+          setTimeout( () => self.crawlStateGrid( grid_neighbor.index, u.index ), i * 100 );
         }
-      }
-      if( vertex_data.right > 0 ) {
-        if( vertex_data.distance + vertex_data.right < this.state.grid[ i + 1 ].props.distance ){
-          v = <Vertex 
-                visited_via={i}
-                distance={vertex_data.distance + vertex_data.right}
-                visited={tmp_grid[ i + 1 ].visited} 
-                name={tmp_grid[ i + 1].name}
-                key={tmp_grid[i+1].key}
-                index={tmp_grid[i+1].index}
-                left={tmp_grid[i+1].left} 
-                right={tmp_grid[i+1].right}
-                top={tmp_grid[i+1].top}
-                bottom={tmp_grid[i+1].bottom}
-               /> 
-          tmp_grid[ i + 1 ] = v;
-        }
-      }
-      if( vertex_data.top > 0 ){
-        if( vertex_data.distance + vertex_data.top < this.state.grid[ i - this.state.grid_data.column_n ].props.distance ){
-          v = <Vertex 
-                visited_via={i}
-                distance={vertex_data.distance + vertex_data.right}
-                visited={tmp_grid[i-this.state.grid_data.column_n].visited} 
-                name={tmp_grid[i-this.state.grid_data.column_n].name}
-                key={tmp_grid[i-this.state.grid_data.column_n].key}
-                index={tmp_grid[i-this.state.grid_data.column_n].index}
-                left={tmp_grid[i-this.state.grid_data.column_n].left} 
-                right={tmp_grid[i-this.state.grid_data.column_n].right}
-                top={tmp_grid[i-this.state.grid_data.column_n].top}
-                bottom={tmp_grid[i-this.state.grid_data.column_n].bottom}
-               /> 
-          tmp_grid[i-this.state.grid_data.column_n] = v;
-        }
-      }
-      if( vertex_data.bottom > 0 ){
-        if( vertex_data.distance + vertex_data.bottom < this.state.grid[ i + this.state.grid_data.column_n ].props.distance ){
-          v = <Vertex 
-                visited_via={i}
-                distance={vertex_data.distance + vertex_data.right}
-                visited={tmp_grid[i+this.state.grid_data.column_n].visited} 
-                name={tmp_grid[i+this.state.grid_data.column_n].name}
-                key={tmp_grid[i+this.state.grid_data.column_n].key}
-                index={tmp_grid[i+this.state.grid_data.column_n].index}
-                left={tmp_grid[i+this.state.grid_data.column_n].left} 
-                right={tmp_grid[i+this.state.grid_data.column_n].right}
-                top={tmp_grid[i+this.state.grid_data.column_n].top}
-                bottom={tmp_grid[i+this.state.grid_data.column_n].bottom}
-               /> 
-          tmp_grid[i+this.state.grid_data.column_n] = v;
-        }
-      }
-
-      this.setState({
-        grid: [ ...tmp_grid ]
       });
+
+      priority_queue = priority_queue.sort( (a,b) => ( a.cost <  b.cost ? -1 : 1 ) );
     }
 
+    return visited;
+  }
+
+
+  //@Params: Vertex_Object 
+  //@returns: array of vertex_indexes
+  getNeighbors( u ){
+
+    let n = [];
+
+    if( u.top > 0 )
+      n.push( u.index - grid.column_n );
+    if( u.bottom > 0 )
+      n.push( u.index + grid.column_n );
+    if( u.left > 0 )
+      n.push( u.index - 1 );
+    if( u.right > 0 )
+      n.push( u.index + 1 );
+   return n;
+  }
+
+  crawlStateGrid( vertex_id, via ){
+    let el = document.getElementById( 'vertex-' + vertex_id );
+    el.className = el.className + ' visited';
+  }
+
+  findPath( vertices, target ){
+    
+    // start at target,
+    // output target index
+    // travel to visited_via
+    // output index
+
+    let from = target; 
+    let path = [];
+    path.push(from);
+
+    while( from != grid.begin_i ){
+      for( let i = 0; i < vertices.length; i++ ){
+        if( vertices[i].index == from && from != grid.begin_i ){
+          from = vertices[i].visited_via;
+          path.push(from);
+        }
+      }
+    }
+
+    return path;
+  }
+
+  updatePath( path ){
+
+    path.forEach( function( e, i ){
+      let el = document.getElementById( 'vertex-' + e )
+      el.className = el.className + ' target-pos';
+    });
   }
 
   //
   // Utility Functions
   //
-
-  removeAt( i ){
-    var tmpGrid = this.state.grid;
-
-    tmpGrid[i] = null;
-    this.setState( ( state, props) => {
-      return { grid: [...tmpGrid] }
-    });
-  }
-
+  //
   begin( ){
-    this.dijkstra_pathfinding( this.state.begin_i, 
-                               this.state.target_i );
+    let visited = this.dijkstra_pathfinding( grid.target_i );
+    let path = this.findPath( visited, grid.target_i )
+    this.updatePath( path );
   }
 
   // Reset Grid Elements
   reset( ){
-    this.setState({grid:[]});
+    this.setState({vertices:[]});
     this.initGrid();
   }
 
   //Clear Grid Elements
   clear( ){
-    this.setState({grid:[]});
   }
 
   render( ){
@@ -291,7 +297,7 @@ class Grid extends React.Component{
             </div>
           </div> 
           {
-           this.state.grid.length > 0 ? this.state.grid.map( vertex => {
+           this.state.vertices.length > 0 ? this.state.vertices.map( vertex => {
               return vertex;
             }) : null 
           }
