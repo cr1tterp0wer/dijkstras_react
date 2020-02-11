@@ -29,13 +29,13 @@ class Footer extends React.Component{
             <h5 className="text-uppercase">Links</h5>
              <ul className="list-unstyled">
               <li>
-                <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstras Algorithm</a>
+                <a href="https://www.youtube.com/watch?v=uEGSBnSsE2E">My Introduction to Dijkstra's Algorithm</a>
               </li>
               <li>
-                <a href="https://www.youtube.com/watch?v=uEGSBnSsE2E">Introduction to Dijkstra's Algorithm</a>
+                <a href="https://www.youtube.com/watch?v=idBMEVPl1m8&t=11s">My Introduction to Binary Numbers</a>
               </li>
               <li>
-                <a href="https://www.youtube.com/watch?v=idBMEVPl1m8&t=11s">Introduction to Binary Numbers</a>
+                <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstras Algorithm - Wiki</a>
               </li>
               <li>
                 <a href="https://www.github.com/cr1tterp0wer">My Github</a>
