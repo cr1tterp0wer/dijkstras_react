@@ -171,6 +171,7 @@ class Grid extends React.Component{
     let neighbors = [];
     let u; // current_vertex 
 
+    let offset = 0;
     while( priority_queue.length > 0 ){
       u = priority_queue.shift();
       visited.push( u );
@@ -188,12 +189,16 @@ class Grid extends React.Component{
           pq_neighbor.cost        = u.cost + 1;
           pq_neighbor.visited_via = u.index;
 
-          setTimeout( () => self.crawlStateGrid( grid_neighbor.index, u.index ), i * 100 );
+          setTimeout( () => self.crawlStateGrid( grid_neighbor.index, u.index ), offset * 20 );
+          offset++;
         }
       });
 
       priority_queue = priority_queue.sort( (a,b) => ( a.cost <  b.cost ? -1 : 1 ) );
     }
+
+    let path    = this.findPath( visited, grid.target_i )
+    setTimeout( () => this.updatePath( path ),  offset * 20 );
 
     return visited;
   }
@@ -258,8 +263,6 @@ class Grid extends React.Component{
   //
   begin( ){
     let visited = this.dijkstra_pathfinding( grid.target_i );
-    let path = this.findPath( visited, grid.target_i )
-    this.updatePath( path );
   }
 
   // Reset Grid Elements
